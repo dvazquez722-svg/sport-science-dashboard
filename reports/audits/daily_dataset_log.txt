@@ -1,0 +1,7 @@
+DAILY DATASET LOG
+==================================================
+
+Raw rows: 26,951
+Daily rows: 4,805
+Players: 42
+Dates: 257
