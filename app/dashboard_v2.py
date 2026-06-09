@@ -1,3 +1,9 @@
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.append(str(ROOT))
+
 import pandas as pd
 import streamlit as st
 import plotly.express as px
