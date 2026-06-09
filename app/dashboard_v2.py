@@ -16,7 +16,7 @@ from src.predictor import predict_next_session
 # =====================================================
 
 st.set_page_config(
-    page_title="Football Load Monitoring",
+    page_title="Rendimiento y Control de Carga",
     page_icon="⚽",
     layout="wide"
 )
@@ -52,16 +52,16 @@ latest_rows = (
 def classify_risk(ewma):
 
     if ewma < 0.8:
-        return "🔵 LOW"
+        return "🔵 BAJO"
 
     elif ewma < 1.3:
         return "🟢 NORMAL"
 
     elif ewma < 1.5:
-        return "🟡 MEDIUM"
+        return "🟡 MEDIO"
 
     else:
-        return "🔴 HIGH"
+        return "🔴 ALTO"
 
 
 latest_rows["risk"] = (
@@ -76,16 +76,16 @@ latest_rows["risk"] = (
 def classify_risk(ewma):
 
     if ewma < 0.8:
-        return "🔵 LOW"
+        return "🔵 BAJO"
 
     elif ewma < 1.3:
         return "🟢 NORMAL"
 
     elif ewma < 1.5:
-        return "🟡 MEDIUM"
+        return "🟡 MEDIO"
 
     else:
-        return "🔴 HIGH"
+        return "🔴 ALTO"
 
 
 def calculate_risk_score(row):
@@ -153,7 +153,7 @@ latest_rows["risk_score"] = (
 # SQUAD OVERVIEW
 # =====================================================
 
-st.subheader("Squad Overview")
+st.subheader("Resumen de Plantilla")
 
 high_risk = len(
     latest_rows[
@@ -182,17 +182,17 @@ normal_risk = len(
 c1, c2, c3 = st.columns(3)
 
 c1.metric(
-    "🔴 High Risk",
+    "🔴 Riesgo Alto",
     high_risk
 )
 
 c2.metric(
-    "🟡 Medium Risk",
+    "🟡 Riesgo Medio",
     medium_risk
 )
 
 c3.metric(
-    "🟢 Normal / Low",
+    "🟢 Normal / Bajo",
     normal_risk
 )
 
@@ -211,18 +211,18 @@ overview = latest_rows[
 ].copy()
 
 overview.columns = [
-    "Player",
-    "Risk",
-    "Risk Score",
-    "Distance",
+    "Jugador",
+    "Riesgo",
+    "Índice de Riesgo",
+    "Distancia Total",
     "HSR",
-    "Player Load",
+    "Carga del jugador",
     "EWMA"
 ]
 
 st.dataframe(
     overview.sort_values(
-        "Risk Score",
+        "Índice de Riesgo",
         ascending=False
     ),
     use_container_width=True
@@ -234,10 +234,10 @@ st.divider()
 # SIDEBAR
 # =====================================================
 
-st.sidebar.title("⚽ Football Load Monitoring")
+st.sidebar.title("⚽ Control de Carga")
 
 player = st.sidebar.selectbox(
-    "Player",
+    "Jugador",
     sorted(df["player"].unique())
 )
 
@@ -248,12 +248,12 @@ player_df_full = (
 )
 
 start_date = st.sidebar.date_input(
-    "Start Date",
+    "Fecha inicio",
     value=player_df_full["date"].min()
 )
 
 end_date = st.sidebar.date_input(
-    "End Date",
+    "Fecha fin",
     value=player_df_full["date"].max()
 )
 
@@ -308,7 +308,7 @@ else:
 # HEADER
 # =====================================================
 
-st.title("⚽ Football Load Monitoring Dashboard")
+st.title("⚽ Monitorización de la carga")
 
 # =====================================================
 # EXECUTIVE SUMMARY
@@ -316,7 +316,7 @@ st.title("⚽ Football Load Monitoring Dashboard")
 
 st.markdown("---")
 
-st.subheader("Executive Summary")
+st.subheader("Resumen Ejecutivo")
 
 current_risk_score = calculate_risk_score(
     last_session
@@ -325,22 +325,22 @@ current_risk_score = calculate_risk_score(
 e1, e2, e3, e4 = st.columns(4)
 
 e1.metric(
-    "Predicted Distance",
+    "Distancia Prevista",
     f"{pred_distance:,.0f} m"
 )
 
 e2.metric(
-    "EWMA Ratio",
+    "Ratio EWMA",
     f"{latest_ewma:.2f}"
 )
 
 e3.metric(
-    "Risk Status",
+    "Estado de Riesgo",
     f"{color} {risk}"
 )
 
 e4.metric(
-    "Injury Risk Score",
+    "Riesgo de Lesión",
     f"{current_risk_score:.0f}/100"
 )
 
@@ -374,11 +374,11 @@ st.markdown("---")
 # TOP RISK PLAYERS
 # =====================================================
 
-st.subheader("Top Risk Players")
+st.subheader("Jugadores con más riesgo")
 
 top_risk = latest_rows.copy()
 
-top_risk["Risk Score"] = (
+top_risk["Índice de Riesgo"] = (
     top_risk
     .apply(
         calculate_risk_score,
@@ -390,21 +390,21 @@ top_risk = (
     top_risk[
         [
             "player",
-            "Risk Score",
+            "Índice de Riesgo",
             "ewma_ratio_player_load_a_u",
             "acwr_player_load_a_u"
         ]
     ]
     .sort_values(
-        "Risk Score",
+        "Índice de Riesgo",
         ascending=False
     )
     .head(10)
 )
 
 top_risk.columns = [
-    "Player",
-    "Risk Score",
+    "Jugador",
+    "Índice de Riesgo",
     "EWMA",
     "ACWR"
 ]
@@ -424,7 +424,7 @@ st.markdown(
 # SQUAD BENCHMARKING
 # =====================================================
 
-st.subheader("Squad Benchmarking")
+st.subheader("Comparativa con la Plantilla")
 
 
 squad_avg_distance = df["distance_m"].mean()
@@ -441,15 +441,15 @@ player_load = player_df["player_load_a_u"].mean()
 
 benchmark = pd.DataFrame({
 
-    "Metric": [
-        "Distance",
+    "Métrica": [
+        "Distancia Total",
         "HSR",
         "Sprints",
-        "Accelerations",
+        "Aceleraciones",
         "Player Load"
     ],
 
-    "Player": [
+    "Jugador": [
         round(player_distance, 1),
         round(player_hsr, 1),
         round(player_sprints, 1),
@@ -457,7 +457,7 @@ benchmark = pd.DataFrame({
         round(player_load, 1)
     ],
 
-    "Squad Average": [
+    "Media de la plantilla": [
         round(squad_avg_distance, 1),
         round(squad_avg_hsr, 1),
         round(squad_avg_sprints, 1),
@@ -466,11 +466,11 @@ benchmark = pd.DataFrame({
     ]
 })
 
-benchmark["Difference %"] = round(
+benchmark["Diferencia %"] = round(
     (
-        benchmark["Player"]
+        benchmark["Jugador"]
         /
-        benchmark["Squad Average"]
+        benchmark["Media de la plantilla"]
         - 1
     ) * 100,
     1
@@ -493,8 +493,8 @@ def classify_benchmark(x):
     else:
         return f"⚪ {x}%"
 
-benchmark["Difference %"] = (
-    benchmark["Difference %"]
+benchmark["Diferencia %"] = (
+    benchmark["Diferencia %"]
     .apply(classify_benchmark)
 )
 
@@ -505,15 +505,15 @@ st.dataframe(
 
 st.caption(
     """
-    🔴 Much higher than squad average (>20%)
+    🔴 Mucho más alto que la media de la plantilla (>20%)
 
-    🟡 Higher than squad average (+10% to +20%)
+    🟡 Más alto que la media de la plantilla (+10% to +20%)
 
-    ⚪ Similar to squad average
+    ⚪ Similar a la media de la plantilla
 
-    🟢 Lower than squad average (-10% to -20%)
+    🟢 Más bajo que la media de la plantilla (-10% to -20%)
 
-    🔵 Much lower than squad average (<-20%)
+    🔵 Mucho más bajo que la media de la plantilla (<-20%)
     """
 )
 
@@ -526,7 +526,7 @@ st.divider()
 # POSITIONAL BENCHMARKING
 # =====================================================
 
-st.subheader("Positional Benchmarking")
+st.subheader("Comparativa por Posición")
 
 player_position = (
     player_df_full["position"]
@@ -545,15 +545,15 @@ pos_avg_load = position_df["player_load_a_u"].mean()
 
 position_benchmark = pd.DataFrame({
 
-    "Metric": [
-        "Distance",
+    "Métrica": [
+        "Distancia",
         "HSR",
         "Sprints",
-        "Accelerations",
+        "Aceleraciones",
         "Player Load"
     ],
 
-    "Player": [
+    "Jugador": [
         round(player_distance,1),
         round(player_hsr,1),
         round(player_sprints,1),
@@ -561,7 +561,7 @@ position_benchmark = pd.DataFrame({
         round(player_load,1)
     ],
 
-    "Position Average": [
+    "Media en su posición": [
         round(pos_avg_distance,1),
         round(pos_avg_hsr,1),
         round(pos_avg_sprints,1),
@@ -570,23 +570,23 @@ position_benchmark = pd.DataFrame({
     ]
 })
 
-position_benchmark["Difference %"] = round(
+position_benchmark["Diferencia %"] = round(
     (
-        position_benchmark["Player"]
+        position_benchmark["Jugador"]
         /
-        position_benchmark["Position Average"]
+        position_benchmark["Media en su posición"]
         - 1
     ) * 100,
     1
 )
 
-position_benchmark["Difference %"] = (
-    position_benchmark["Difference %"]
+position_benchmark["Diferencia %"] = (
+    position_benchmark["Diferencia %"]
     .apply(classify_benchmark)
 )
 
 st.write(
-    f"Position: {player_position}"
+    f"Posición: {player_position}"
 )
 
 st.dataframe(
@@ -603,28 +603,28 @@ st.divider()
 col1, col2, col3, col4 = st.columns(4)
 
 col1.metric(
-    "Sessions",
+    "Sesiones",
     len(player_df)
 )
 
 col2.metric(
-    "Avg Distance",
+    "Distancia Media",
     f"{player_df['distance_m'].mean():.0f} m"
 )
 
 col3.metric(
-    "Avg HSR",
+    "Media HSR",
     f"{player_df['abs_hsr_m'].mean():.0f} m"
 )
 
 col4.metric(
-    "Avg Player Load",
+    "Media Player Load",
     f"{player_df['player_load_a_u'].mean():.1f}"
 )
 
 st.divider()
 
-st.subheader("AI Prediction")
+st.subheader("Predicción del Modelo")
 
 p1, p2 = st.columns(2)
 
@@ -641,22 +641,22 @@ p2.metric(
 # LAST SESSION
 # =====================================================
 
-st.subheader("Latest Session")
+st.subheader("Última Sesión")
 
 c1, c2, c3, c4, c5 = st.columns(5)
 
 c1.metric(
-    "Date",
+    "Fecha",
     last_session["date"].strftime("%d/%m/%Y")
 )
 
 c2.metric(
-    "Session",
+    "Sesión",
     last_session["type_session"]
 )
 
 c3.metric(
-    "Distance",
+    "Distancia",
     f"{last_session['distance_m']:.0f} m"
 )
 
@@ -676,7 +676,7 @@ st.divider()
 # DISTANCE
 # =====================================================
 
-st.subheader("Distance Evolution")
+st.subheader("Evolución Distancia")
 
 fig = px.line(
     player_df,
@@ -746,7 +746,7 @@ if (
 ):
 
     st.subheader(
-        "Acute vs Chronic Load"
+        "Carga Aguda vs Crónica"
     )
 
     fig = go.Figure()
@@ -755,7 +755,7 @@ if (
         go.Scatter(
             x=player_df["date"],
             y=player_df["acute_player_load_a_u_7d"],
-            name="Acute"
+            name="Aguda"
         )
     )
 
@@ -763,7 +763,7 @@ if (
         go.Scatter(
             x=player_df["date"],
             y=player_df["chronic_player_load_a_u_28d"],
-            name="Chronic"
+            name="Crónica"
         )
     )
 
@@ -828,7 +828,7 @@ trend = (
     .mean()
 )
 
-st.subheader("Load Trend")
+st.subheader("Tendencia de Carga")
 
 st.metric(
     "7-Day EWMA Trend",
@@ -839,7 +839,7 @@ st.metric(
 # WEEKLY MICROCYCLE ANALYSIS
 # =====================================================
 
-st.subheader("Weekly Microcycle Analysis")
+st.subheader("Análisis Microciclo Semanal")
 
 player_df["week_of_year"] = (
     player_df["date"]
@@ -861,17 +861,17 @@ weekly = (
 )
 
 weekly.columns = [
-    "Week",
-    "Distance",
+    "Semana",
+    "Distancia",
     "HSR",
     "Sprints",
-    "Accelerations",
+    "Aceleraciones",
     "Player Load"
 ]
 
 st.dataframe(
     weekly.sort_values(
-        "Week",
+        "Semana",
         ascending=False
     ),
     use_container_width=True
@@ -883,11 +883,11 @@ st.divider()
 # WEEKLY HSR
 # =====================================================
 
-st.subheader("Weekly High Speed Running")
+st.subheader("HSR Semanal")
 
 fig = px.bar(
     weekly,
-    x="Week",
+    x="Semana",
     y="HSR"
 )
 
@@ -904,12 +904,12 @@ st.plotly_chart(
 # WEEKLY ACCELERATIONS
 # =====================================================
 
-st.subheader("Weekly Accelerations")
+st.subheader("Aceleraciones Semanal")
 
 fig = px.bar(
     weekly,
-    x="Week",
-    y="Accelerations"
+    x="Semana",
+    y="Aceleraciones"
 )
 
 fig.update_layout(
@@ -925,7 +925,7 @@ st.plotly_chart(
 # LAST 20 SESSIONS
 # =====================================================
 
-st.subheader("Last Sessions")
+st.subheader("Últimas Sesiones")
 
 cols = [
     "date",
@@ -949,43 +949,43 @@ st.dataframe(
 # AI INSIGHTS
 # =====================================================
 
-st.subheader("AI Insights")
+st.subheader("Observaciones del modelo")
 
 if pred_distance > player_df["distance_m"].mean():
 
     st.info(
-        "Predicted workload is above player's average."
+        "La carga predecida está por encima de la media del jugador."
     )
 
 else:
 
     st.info(
-        "Predicted workload is below player's average."
+        "La carga predecida está por encima de la media del jugador."
     )
 
 if latest_ewma > 1.5:
 
     st.error(
-        "Workload spike detected."
+        "Pico de carga de trabajo detectado."
     )
 
 elif latest_ewma > 1.3:
 
     st.warning(
-        "Workload increasing."
+        "Carga de trabajo aumentando."
     )
 
 else:
 
     st.success(
-        "Workload stable."
+        "Carga de trabajo estable."
     )
 
 # =====================================================
 # SESSION PLANNER
 # =====================================================
 
-st.subheader("Session Planner")
+st.subheader("Planificador de Sesión")
 
 planner1, planner2 = st.columns(2)
 
@@ -1025,7 +1025,7 @@ future_ewma = (
 
 if future_ewma < 0.8:
 
-    future_risk = "🔵 LOW"
+    future_risk = "🔵 BAJO"
 
 elif future_ewma < 1.3:
 
@@ -1033,11 +1033,11 @@ elif future_ewma < 1.3:
 
 elif future_ewma < 1.5:
 
-    future_risk = "🟡 MEDIUM"
+    future_risk = "🟡 MEDIO"
 
 else:
 
-    future_risk = "🔴 HIGH"
+    future_risk = "🔴 ALTO"
 
 
 st.markdown("---")
@@ -1045,12 +1045,12 @@ st.markdown("---")
 p1, p2 = st.columns(2)
 
 p1.metric(
-    "Projected EWMA",
+    "EWMA Estimada",
     f"{future_ewma:.2f}"
 )
 
 p2.metric(
-    "Projected Risk",
+    "Riesgo Estimado",
     future_risk
 )
 
@@ -1059,19 +1059,19 @@ p2.metric(
 # SUMMARY
 # =====================================================
 
-st.subheader("Player Summary")
+st.subheader("Resumen del jugador")
 
 st.write(
     f"""
-    This player completed {len(player_df)} sessions.
+    Este jugador ha completado {len(player_df)} sesiones.
 
-    Average distance:
+    Distancia Media:
     {player_df['distance_m'].mean():.0f} m
 
-    Average HSR:
+   HSR Medio :
     {player_df['abs_hsr_m'].mean():.0f} m
 
-    Average Player Load:
+    Player Load Medio:
     {player_df['player_load_a_u'].mean():.1f}
     """
 )
